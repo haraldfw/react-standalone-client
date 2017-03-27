@@ -81,12 +81,13 @@ class CustomerService {
         });
     }
 
-    setCustomerName(customerId, name) {
+    setCustomerPrefs(customerId, name, city) {
         return new Promise((resolve, reject) => {
             if (customerId && name) {
                 for (let c = 0; c < this.customers.length; c++) {
                     if (this.customers[c].id == customerId) {
                         resolve(this.customers[c].name = name);
+                        resolve(this.customers[c].city = city);
                         return;
                     }
                 }
@@ -98,7 +99,7 @@ class CustomerService {
 }
 
 class CustomerListComponent extends React.Component {
-    state = {status: "", customers: [], newCustomerName: "", newCustomerCity: ""}
+    state = {status: "", customers: [], newCustomerName: "", newCustomerCity: ""};
 
     constructor() {
         super();
@@ -149,7 +150,7 @@ class CustomerListComponent extends React.Component {
 }
 
 class CustomerDetailsComponent extends React.Component {
-    state = {status: "", customer: {}, editCustomerName: ""};
+    state = {status: "", customer: {}, editCustomerName: "", editCustomerCity: ""};
 
     constructor(props) {
         super(props);
@@ -175,18 +176,20 @@ class CustomerDetailsComponent extends React.Component {
 
     onEditCustomerFormChanged = (event) => {
         this.setState({[event.target.name]: event.target.value});
-    }
+    };
 
     // Event methods, which are called in render(), are declared as properties:
-    onEditCustomerName = (event) => {
+    onEditCustomer = (event) => {
         event.preventDefault();
-        CustomerService.get().setCustomerName(this.state.customer.id, this.state.editCustomerName).then((result) => {
-            this.setState({
-                status: "successfully edited new customer",
-                customers: this.state.customers,
-                editCustomerName: ""
-            });
-        }).catch((reason) => {
+        CustomerService.get().setCustomerPrefs(this.state.customer.id, this.state.editCustomerName, this.state.editCustomerCity)
+            .then((result) => {
+                this.setState({
+                    status: "successfully edited new customer",
+                    customers: this.state.customers,
+                    editCustomerName: "",
+                    editCustomerCity: ""
+                });
+            }).catch((reason) => {
             this.setState({status: "error: " + reason});
         });
     }
@@ -199,9 +202,10 @@ class CustomerDetailsComponent extends React.Component {
             </ul>
             <button onClick={this.onDelCustomer}>"Delete"</button>
 
-            <form onSubmit={this.onEditCustomerName} onChange={this.onEditCustomerFormChanged}>
-                <input type="text" name="editCustomerName" value={this.state.editCustomerName}/>
-                <input type="submit"/>
+            <form onSubmit={this.onEditCustomer} onChange={this.onEditCustomerFormChanged}>
+                <label>Name</label><input type="text" name="editCustomerName" value={this.state.editCustomerName}/>
+                <label>City</label><input type="text" name="editCustomerCity" value={this.state.editCustomerCity}/>
+                <input type="submit" value="Edit customer" />
             </form>
         </div>
     };
