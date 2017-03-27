@@ -6,7 +6,10 @@ import {hashHistory, Route, Router} from "react-router";
 
 class Menu extends React.Component {
     render() {
-        return <div>Menu: <a href="/#/">Customers</a></div>;
+        return <div>Menu:
+            <a href="/#/">Customers</a>
+            <a href="/#/about">About</a>
+        </div>;
     }
 }
 
@@ -77,6 +80,21 @@ class CustomerService {
             reject("Customer not found");
         });
     }
+
+    setCustomerName(customerId, name) {
+        return new Promise((resolve, reject) => {
+            if (customerId && name) {
+                for (let c = 0; c < this.customers.length; c++) {
+                    if (this.customers[c].id == customerId) {
+                        resolve(this.customers[c].name = name);
+                        return;
+                    }
+                }
+                return;
+            }
+            reject("Customer not found");
+        });
+    }
 }
 
 class CustomerListComponent extends React.Component {
@@ -131,7 +149,7 @@ class CustomerListComponent extends React.Component {
 }
 
 class CustomerDetailsComponent extends React.Component {
-    state = {status: "", customer: {}};
+    state = {status: "", customer: {}, editCustomerName: ""};
 
     constructor(props) {
         super(props);
@@ -155,16 +173,47 @@ class CustomerDetailsComponent extends React.Component {
         });
     };
 
+    onEditCustomerFormChanged = (event) => {
+        this.setState({[event.target.name]: event.target.value});
+    }
+
+    // Event methods, which are called in render(), are declared as properties:
+    onEditCustomerName = (event) => {
+        event.preventDefault();
+        CustomerService.get().setCustomerName(this.state.customer.id, this.state.editCustomerName).then((result) => {
+            this.setState({
+                status: "successfully edited new customer",
+                customers: this.state.customers,
+                editCustomerName: ""
+            });
+        }).catch((reason) => {
+            this.setState({status: "error: " + reason});
+        });
+    }
+
     render() {
         return <div>status: {this.state.status}<br/>
             <ul>
                 <li>name: {this.state.customer.name}</li>
                 <li>city: {this.state.customer.city}</li>
             </ul>
-            <button
-                onClick={this.onDelCustomer}
-            >"Delete"</button>
+            <button onClick={this.onDelCustomer}>"Delete"</button>
+
+            <form onSubmit={this.onEditCustomerName} onChange={this.onEditCustomerFormChanged}>
+                <input type="text" name="editCustomerName" value={this.state.editCustomerName}/>
+                <input type="submit"/>
+            </form>
         </div>
+    };
+}
+
+class AboutComponent extends React.Component {
+    constructor() {
+        super();
+    }
+
+    render() {
+        return <div>Dette er about-siden. Applikasjonen er skrevet i React. Jeg heter Harald</div>
     };
 }
 
@@ -172,6 +221,7 @@ class Routes extends React.Component {
     render() {
         return <Router history={hashHistory}>
             <Route exact path="/" component={CustomerListComponent}/>
+            <Route exact path="/about" component={AboutComponent}/>
             <Route path="/customer/:customerId" component={CustomerDetailsComponent}/>
         </Router>;
     }
