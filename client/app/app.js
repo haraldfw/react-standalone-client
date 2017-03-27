@@ -192,7 +192,7 @@ class CustomerDetailsComponent extends React.Component {
             }).catch((reason) => {
             this.setState({status: "error: " + reason});
         });
-    }
+    };
 
     render() {
         return <div>status: {this.state.status}<br/>
@@ -217,7 +217,7 @@ class AboutComponent extends React.Component {
     }
 
     render() {
-        return <div>Dette er about-siden. Applikasjonen er skrevet i React. Jeg heter Harald</div>
+        return <div>Dette er about-siden. Applikasjonen er skrevet i React. Vi heter Harald og Gard</div>
     };
 }
 
